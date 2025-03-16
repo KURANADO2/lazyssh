@@ -1,0 +1,14 @@
+[package]
+name = "lazyssh"
+version = "0.1.0"
+edition = "2021"
+keywords = ["tui", "ssh"]
+authors = ["KURANADO"]
+description = "An ssh server manages tui tools."
+license = "MIT"
+
+[dependencies]
+color-eyre = "0.6.3"
+crossterm = "0.28.1"
+ratatui = "0.29.0"
+dirs = "3.0.2"
