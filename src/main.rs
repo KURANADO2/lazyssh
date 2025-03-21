@@ -1,10 +1,11 @@
 mod app;
 mod event_handler;
+mod render;
 mod ssh_login;
-mod ui;
 
 use crate::app::App;
 use crate::event_handler::handle_key;
+use crate::render::render;
 use crate::ssh_login::ssh_login;
 use color_eyre::Result;
 use crossterm::event;
@@ -33,7 +34,7 @@ fn run(mut app: App, mut terminal: DefaultTerminal) -> (Result<()>, App) {
     let mut result = Ok(());
 
     while !app.should_exit {
-        if let Err(e) = terminal.draw(|frame| frame.render_widget(&mut app, frame.area())) {
+        if let Err(e) = terminal.draw(|frame| render(frame, &mut app)) {
             result = Err(e.into());
             break;
         }
