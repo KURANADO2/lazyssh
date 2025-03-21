@@ -15,9 +15,9 @@ fn main() -> Result<()> {
     color_eyre::install()?;
     let terminal = ratatui::init();
     let app = App::new()?;
-    
+
     let (result, app) = run(app, terminal);
-    
+
     ratatui::restore();
 
     if app.has_selected {
@@ -31,7 +31,7 @@ fn main() -> Result<()> {
 
 fn run(mut app: App, mut terminal: DefaultTerminal) -> (Result<()>, App) {
     let mut result = Ok(());
-    
+
     while !app.should_exit {
         if let Err(e) = terminal.draw(|frame| frame.render_widget(&mut app, frame.area())) {
             result = Err(e.into());
@@ -41,6 +41,6 @@ fn run(mut app: App, mut terminal: DefaultTerminal) -> (Result<()>, App) {
             handle_key(&mut app, key);
         };
     }
-    
+
     (result, app)
 }
