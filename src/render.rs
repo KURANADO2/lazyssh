@@ -20,7 +20,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
         .server_list
         .visible_items()
         .iter()
-        .map(|server| ListItem::new(Line::styled(server.hostname.clone(), TEXT_FG_COLOR)))
+        .map(|server| ListItem::new(Line::styled(server.to_string(), TEXT_FG_COLOR)))
         .collect();
     let list = List::new(items)
         .highlight_style(SELECTED_STYLE)
@@ -30,12 +30,15 @@ pub fn render(frame: &mut Frame, app: &mut App) {
 
     // render footer
     let footer_text = if app.is_searching {
-        format!("Search: {} (Press Esc to cancel, Ctrl+j/k or ↑/↓ to navigate)", app.search_query)
+        format!(
+            "Search: {} (Press Esc to cancel, Ctrl+j/k or ↑/↓ to navigate)",
+            app.search_query
+        )
     } else {
-        "j/↓: down | k/↑: up | g/Home: top | G/End: bottom | / or f: search | Enter: login".to_string()
+        "j/↓: down | k/↑: up | g/Home: top | G/End: bottom | / or f: search | Enter: login"
+            .to_string()
     };
-    let footer =
-        Paragraph::new(footer_text);
+    let footer = Paragraph::new(footer_text);
 
     frame.render_widget(footer, chunks[1]);
 }

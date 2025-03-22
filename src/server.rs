@@ -11,8 +11,9 @@ pub struct ServerList {
 
 #[derive(Debug)]
 pub struct ServerItem {
+    pub host: String,
+    pub ip: String,
     pub username: String,
-    pub hostname: String,
     pub port: u32,
 }
 
@@ -24,8 +25,10 @@ impl ServerList {
 
         let content = fs::read_to_string(path).unwrap_or_default();
         let mut items = Vec::new();
-        let mut user = "root";
-        let mut port = 22;
+        let mut current_host = None;
+        let mut current_ip = None;
+        let mut current_user = None;
+        let mut current_port = 22;
 
         for line in content.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
@@ -34,14 +37,38 @@ impl ServerList {
             }
             match parts[0] {
                 "Host" => {
+                    if let Some(host) = current_host {
+                        items.push(ServerItem::new(
+                            host,
+                            current_ip.unwrap_or("unknown"),
+                            current_user.unwrap_or("jing"),
+                            current_port,
+                        ));
+                    }
                     if parts[1] != "*" {
-                        items.push(ServerItem::new(user, parts[1], port));
+                        current_host = Some(parts[1]);
+                        current_ip = None;
+                        current_user = None;
+                        current_port = 22;
+                    } else {
+                        current_host = None;
                     }
                 }
-                "User" => user = parts[1],
-                "Port" => port = parts[1].parse().unwrap_or(22),
+                "HostName" => current_ip = Some(parts[1]),
+                "User" => current_user = Some(parts[1]),
+                "Port" => current_port = parts[1].parse().unwrap_or(22),
                 _ => {}
             }
+        }
+
+        // Add the last server if exists
+        if let Some(host) = current_host {
+            items.push(ServerItem::new(
+                host,
+                current_ip.unwrap_or("unknown"),
+                current_user.unwrap_or("jing"),
+                current_port,
+            ));
         }
 
         let mut state = ListState::default();
@@ -68,7 +95,9 @@ impl ServerList {
             .items
             .iter()
             .enumerate()
-            .filter_map(|(idx, item)| best_match(query, &item.hostname).map(|m| (idx, m.score())))
+            .filter_map(|(idx, item)| {
+                best_match(query, &item.to_string()).map(|m| (idx, m.score()))
+            })
             .filter(|(_, score)| *score > 0)
             .map(|(idx, _)| idx)
             .collect();
@@ -107,16 +136,24 @@ impl ServerList {
     }
 
     pub fn selected(&self) -> Option<&ServerItem> {
-        self.state.selected().and_then(|i| self.filtered_items.get(i)).map(|&idx| &self.items[idx])
+        self.state
+            .selected()
+            .and_then(|i| self.filtered_items.get(i))
+            .map(|&idx| &self.items[idx])
     }
 }
 
 impl ServerItem {
-    pub fn new(username: &str, hostname: &str, port: u32) -> Self {
+    pub fn new(host: &str, ip: &str, username: &str, port: u32) -> Self {
         Self {
+            host: host.to_string(),
+            ip: ip.to_string(),
             username: username.to_string(),
-            hostname: hostname.to_string(),
             port,
         }
+    }
+
+    pub fn to_string(&self) -> String {
+        format!("{} {}", self.host, self.ip)
     }
 }
