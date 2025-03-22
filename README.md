@@ -10,12 +10,6 @@ An ssh server manages tui tools.
 cargo install lazyssh
 ```
 
-### brew
-
-```bash
-brew install lazyssh
-```
-
 ## Usage
 
 Simply run the `lazyssh` command in the terminal（It is recommended to add a command alias for `lazyssh`, such as `s`）,
@@ -25,16 +19,18 @@ exit the TUI program. All server information comes from the `~/.ssh/config` file
 
 ## Shortcut
 
-| Key    | Desc              |
-|--------|-------------------|
-| j/↓    | Move down         |
-| k/↑    | Move up           |
-| g/Home | Move to top       |
-| G/End  | Move to bottom    |
-| /      | Enter search mode |
-| Esc    | Exit search mode  |
-| Enter  | Perform SSH login |
-| q      | Exit              |
+| Key             | Desc                        |
+|-----------------|-----------------------------|
+| j/↓             | Move down                   |
+| k/↑             | Move up                     |
+| g/Home          | Move to top                 |
+| G/End           | Move to bottom              |
+| /               | Enter search mode           |
+| Ctrl+j/k or ↑/↓ | Move down/up in search mode |
+| Backspace       | Delete search query chars   |
+| Esc             | Exit search mode            |
+| Enter           | Perform SSH login           |
+| q               | Exit                        |
 
 ## ~/.ssh/config Example
 
