@@ -30,9 +30,9 @@ pub fn render(frame: &mut Frame, app: &mut App) {
 
     // render footer
     let footer_text = if app.is_searching {
-        format!("Search: {} (Press ESC to cancel)", app.search_query)
+        format!("Search: {} (Press Esc to cancel, Ctrl+j/k or ↑/↓ to navigate)", app.search_query)
     } else {
-        "j: down | k: up | g: top | G: bottom | / or f: search | enter: login".to_string()
+        "j/↓: down | k/↑: up | g/Home: top | G/End: bottom | / or f: search | Enter: login".to_string()
     };
     let footer =
         Paragraph::new(footer_text);

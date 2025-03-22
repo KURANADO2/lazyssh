@@ -1,5 +1,5 @@
 use crate::app::App;
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 
 pub fn handle_key(app: &mut App, key: KeyEvent) {
     if key.kind != KeyEventKind::Press {
@@ -19,11 +19,17 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
                 app.search_query.pop();
                 app.update_search();
             }
+            // ctrl + J/K navigation
+            KeyCode::Char('j') if key.modifiers.contains(KeyModifiers::CONTROL) => app.server_list.select_next(),
+            KeyCode::Char('k') if key.modifiers.contains(KeyModifiers::CONTROL) => app.server_list.select_previous(),
             // input char
             KeyCode::Char(c) => {
                 app.search_query.push(c);
                 app.update_search();
             }
+            // navigation in search results
+            KeyCode::Down => app.server_list.select_next(),
+            KeyCode::Up => app.server_list.select_previous(),
             // execute ssh login
             KeyCode::Enter => {
                 app.is_searching = false;
