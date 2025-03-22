@@ -2,6 +2,7 @@ mod app;
 mod event_handler;
 mod render;
 mod ssh_login;
+mod server;
 
 use crate::app::App;
 use crate::event_handler::handle_key;
