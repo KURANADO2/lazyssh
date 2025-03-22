@@ -107,7 +107,7 @@ impl ServerList {
     }
 
     pub fn selected(&self) -> Option<&ServerItem> {
-        self.state.selected().map(|i| &self.items[i])
+        self.state.selected().and_then(|i| self.filtered_items.get(i)).map(|&idx| &self.items[idx])
     }
 }
 
