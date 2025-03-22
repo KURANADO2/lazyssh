@@ -1,10 +1,13 @@
 [package]
 name = "lazyssh"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 keywords = ["tui", "ssh"]
-authors = ["KURANADO"]
 description = "An ssh server manages tui tools."
+readme = "README.md"
+authors = ["KURANADO <jingxinling1024@163.com>"]
+homepage = "https://github.com/KURANADO2/lazyssh"
+repository = "https://github.com/KURANADO2/lazyssh"
 license = "MIT"
 
 [dependencies]
