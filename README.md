@@ -98,4 +98,5 @@ $ tree ~/.ssh
 - You can use `ssh-keygen -t rsa -b 4096 -C youremail@xxx.com` to generate the private and public key.
 - You can use `ssh-copy-id -i xxx.pub -p 22 yourusername@x.x.x.x` to send the public key to the remote server.
 - You can log in to multiple remote servers using one pair of public and private keys.
-- You can upload your `~/.ssh` folder to a git **private** repository.
+- The `Host` value in the `~/.ssh/config` file can be set to non-ASCII characters, so you can type Chinese, Japanese, Korean, etc.
+- You can upload your `~/.ssh` folder to a git **private** repository to make it easy to synchronize configurations across multiple machines.
