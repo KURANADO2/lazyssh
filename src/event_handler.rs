@@ -1,5 +1,5 @@
 use crate::app::App;
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseEvent, MouseEventKind};
 
 pub fn handle_key(app: &mut App, key: KeyEvent) {
     if key.kind != KeyEventKind::Press {
@@ -20,8 +20,12 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
                 app.update_search();
             }
             // ctrl + J/K navigation
-            KeyCode::Char('j') if key.modifiers.contains(KeyModifiers::CONTROL) => app.server_list.select_next(),
-            KeyCode::Char('k') if key.modifiers.contains(KeyModifiers::CONTROL) => app.server_list.select_previous(),
+            KeyCode::Char('j') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                app.server_list.select_next()
+            }
+            KeyCode::Char('k') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                app.server_list.select_previous()
+            }
             // input char
             KeyCode::Char(c) => {
                 app.search_query.push(c);
@@ -54,6 +58,18 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
         KeyCode::Enter => {
             app.should_exit = true;
             app.has_selected = true;
+        }
+        _ => {}
+    }
+}
+
+pub fn handle_mouse(app: &mut App, mouse: MouseEvent) {
+    match mouse.kind {
+        MouseEventKind::Down(_) => {
+            // Calculates the list item index corresponding to the clicked location
+            if let Some(selected_index) = app.server_list.get_index_at_y(mouse.row as usize) {
+                app.server_list.state.select(Some(selected_index));
+            }
         }
         _ => {}
     }

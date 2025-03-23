@@ -141,6 +141,14 @@ impl ServerList {
             .and_then(|i| self.filtered_items.get(i))
             .map(|&idx| &self.items[idx])
     }
+
+    pub fn get_index_at_y(&self, y: usize) -> Option<usize> {
+        if y < self.filtered_items.len() {
+            Some(y)
+        } else {
+            None
+        }
+    }
 }
 
 impl ServerItem {
