@@ -13,24 +13,24 @@ cargo install lazyssh
 ## Usage
 
 Simply run the `lazyssh` command in the terminal（It is recommended to add a command alias for `lazyssh`, such as `s`）,
-and the TUI program will list all remote servers. You can select a server using your mouse or keyboard. All server
-information comes from the `~/.ssh/config` file.
+and the TUI program will list all remote servers. You can select a server using your mouse or keyboard, double-click or
+press Enter to log in to the server. All server information comes from the `~/.ssh/config` file.
 
 ## Shortcut
 
-| Key             | Desc                        |
-|-----------------|-----------------------------|
-| Mouse click     | Select server               |
-| j/↓             | Move down                   |
-| k/↑             | Move up                     |
-| g/Home          | Move to top                 |
-| G/End           | Move to bottom              |
-| /               | Enter search mode           |
-| Ctrl+j/k or ↑/↓ | Move down/up in search mode |
-| Backspace       | Delete search query chars   |
-| Esc             | Exit search mode            |
-| Enter           | Perform SSH login           |
-| q               | Exit                        |
+| Key                | Desc                        |
+|--------------------|-----------------------------|
+| Mouse click        | Select server               |
+| j/↓                | Move down                   |
+| k/↑                | Move up                     |
+| g/Home             | Move to top                 |
+| G/End              | Move to bottom              |
+| /                  | Enter search mode           |
+| Ctrl+j/k or ↑/↓    | Move down/up in search mode |
+| Backspace          | Delete search query chars   |
+| Esc                | Exit search mode            |
+| Double click/Enter | Perform SSH login           |
+| q                  | Exit                        |
 
 ## ~/.ssh/config file Example
 
