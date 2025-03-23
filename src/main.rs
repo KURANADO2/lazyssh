@@ -40,7 +40,7 @@ fn main() -> Result<()> {
 
     if app.has_selected {
         if let Some(server) = app.server_list.selected() {
-            ssh_login(&server.username, &server.host, server.port);
+            ssh_login(&server);
         }
     }
 

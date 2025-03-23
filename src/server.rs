@@ -15,6 +15,7 @@ pub struct ServerItem {
     pub ip: String,
     pub username: String,
     pub port: u32,
+    pub private_key: String,
 }
 
 impl ServerList {
@@ -29,6 +30,7 @@ impl ServerList {
         let mut current_ip = None;
         let mut current_user = None;
         let mut current_port = 22;
+        let mut current_private_key = None;
 
         for line in content.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
@@ -40,9 +42,10 @@ impl ServerList {
                     if let Some(host) = current_host {
                         items.push(ServerItem::new(
                             host,
-                            current_ip.unwrap_or("unknown"),
-                            current_user.unwrap_or("jing"),
+                            current_ip.unwrap_or("Unknown ip"),
+                            current_user.unwrap_or("Unknown user"),
                             current_port,
+                            current_private_key.unwrap_or("Unknown private key"),
                         ));
                     }
                     if parts[1] != "*" {
@@ -50,6 +53,7 @@ impl ServerList {
                         current_ip = None;
                         current_user = None;
                         current_port = 22;
+                        current_private_key = None;
                     } else {
                         current_host = None;
                     }
@@ -57,6 +61,7 @@ impl ServerList {
                 "HostName" => current_ip = Some(parts[1]),
                 "User" => current_user = Some(parts[1]),
                 "Port" => current_port = parts[1].parse().unwrap_or(22),
+                "IdentityFile" => current_private_key = Some(parts[1]),
                 _ => {}
             }
         }
@@ -68,6 +73,7 @@ impl ServerList {
                 current_ip.unwrap_or("unknown"),
                 current_user.unwrap_or("jing"),
                 current_port,
+                current_private_key.unwrap_or("unknown"),
             ));
         }
 
@@ -152,12 +158,13 @@ impl ServerList {
 }
 
 impl ServerItem {
-    pub fn new(host: &str, ip: &str, username: &str, port: u32) -> Self {
+    pub fn new(host: &str, ip: &str, username: &str, port: u32, private_key: &str) -> Self {
         Self {
             host: host.to_string(),
             ip: ip.to_string(),
             username: username.to_string(),
             port,
+            private_key: private_key.to_string(),
         }
     }
 
