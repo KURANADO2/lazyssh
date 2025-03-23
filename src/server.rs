@@ -18,6 +18,63 @@ pub struct ServerItem {
     pub private_key: String,
 }
 
+#[derive(Default)]
+struct SshConfigParser {
+    current_host: Option<String>,
+    current_ip: Option<String>,
+    current_user: Option<String>,
+    current_port: u32,
+    current_private_key: Option<String>,
+    items: Vec<ServerItem>,
+}
+
+impl SshConfigParser {
+    fn new() -> Self {
+        Self::default()
+    }
+
+    fn parse_line(&mut self, line: &str) {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 2 {
+            return;
+        }
+
+        match parts[0] {
+            "Host" => {
+                self.flush_current_host();
+                if parts[1] != "*" {
+                    self.current_host = Some(parts[1].to_string());
+                    self.reset_current_values();
+                }
+            }
+            "HostName" => self.current_ip = Some(parts[1].to_string()),
+            "User" => self.current_user = Some(parts[1].to_string()),
+            "Port" => self.current_port = parts[1].parse().unwrap_or(22),
+            "IdentityFile" => self.current_private_key = Some(parts[1].to_string()),
+            _ => {}
+        }
+    }
+
+    fn flush_current_host(&mut self) {
+        if let Some(host) = self.current_host.take() {
+            self.items.push(ServerItem::new(
+                &host,
+                self.current_ip.as_deref().unwrap_or("unknown"),
+                self.current_user.as_deref().unwrap_or("jing"),
+                self.current_port,
+                self.current_private_key.as_deref().unwrap_or("unknown"),
+            ));
+        }
+    }
+
+    fn reset_current_values(&mut self) {
+        self.current_ip = None;
+        self.current_user = None;
+        self.current_port = 22;
+        self.current_private_key = None;
+    }
+}
+
 impl ServerList {
     pub fn from_ssh_config() -> Self {
         let path = dirs::home_dir()
@@ -25,69 +82,24 @@ impl ServerList {
             .unwrap_or_else(|| "/dev/null".into());
 
         let content = fs::read_to_string(path).unwrap_or_default();
-        let mut items = Vec::new();
-        let mut current_host = None;
-        let mut current_ip = None;
-        let mut current_user = None;
-        let mut current_port = 22;
-        let mut current_private_key = None;
+        let mut parser = SshConfigParser::new();
 
-        for line in content.lines() {
-            let parts: Vec<&str> = line.split_whitespace().collect();
-            if parts.len() < 2 {
-                continue;
-            }
-            match parts[0] {
-                "Host" => {
-                    if let Some(host) = current_host {
-                        items.push(ServerItem::new(
-                            host,
-                            current_ip.unwrap_or("Unknown ip"),
-                            current_user.unwrap_or("Unknown user"),
-                            current_port,
-                            current_private_key.unwrap_or("Unknown private key"),
-                        ));
-                    }
-                    if parts[1] != "*" {
-                        current_host = Some(parts[1]);
-                        current_ip = None;
-                        current_user = None;
-                        current_port = 22;
-                        current_private_key = None;
-                    } else {
-                        current_host = None;
-                    }
-                }
-                "HostName" => current_ip = Some(parts[1]),
-                "User" => current_user = Some(parts[1]),
-                "Port" => current_port = parts[1].parse().unwrap_or(22),
-                "IdentityFile" => current_private_key = Some(parts[1]),
-                _ => {}
-            }
-        }
+        // Parse all lines
+        content.lines().for_each(|line| parser.parse_line(line));
 
-        // Add the last server if exists
-        if let Some(host) = current_host {
-            items.push(ServerItem::new(
-                host,
-                current_ip.unwrap_or("unknown"),
-                current_user.unwrap_or("jing"),
-                current_port,
-                current_private_key.unwrap_or("unknown"),
-            ));
-        }
+        // Flush the last host if exists
+        parser.flush_current_host();
 
         let mut state = ListState::default();
         state.select(Some(0));
 
         let mut result = Self {
-            items,
+            items: parser.items,
             state,
             filtered_items: Vec::new(),
         };
 
         result.reset_filter();
-
         result
     }
 
