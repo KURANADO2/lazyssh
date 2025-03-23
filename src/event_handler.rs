@@ -1,5 +1,6 @@
 use crate::app::App;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseEvent, MouseEventKind};
+use std::time::Duration;
 
 pub fn handle_key(app: &mut App, key: KeyEvent) {
     if key.kind != KeyEventKind::Press {
@@ -69,6 +70,16 @@ pub fn handle_mouse(app: &mut App, mouse: MouseEvent) {
             // Calculates the list item index corresponding to the clicked location
             if let Some(selected_index) = app.server_list.get_index_at_y(mouse.row as usize) {
                 app.server_list.state.select(Some(selected_index));
+
+                // Check for double click
+                if let Some(last_click) = app.last_click_time {
+                    if last_click.elapsed() < Duration::from_millis(300) {
+                        // Double click detected, perform login
+                        app.should_exit = true;
+                        app.has_selected = true;
+                    }
+                }
+                app.last_click_time = Some(std::time::Instant::now());
             }
         }
         _ => {}

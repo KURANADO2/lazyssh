@@ -1,4 +1,5 @@
 use crate::server::ServerList;
+use std::time::Instant;
 
 #[derive(Debug)]
 pub struct App {
@@ -7,6 +8,7 @@ pub struct App {
     pub search_query: String,
     pub is_searching: bool,
     pub server_list: ServerList,
+    pub last_click_time: Option<Instant>,
 }
 
 impl App {
@@ -17,6 +19,7 @@ impl App {
             search_query: String::new(),
             is_searching: false,
             server_list: ServerList::from_ssh_config(),
+            last_click_time: None,
         })
     }
 
