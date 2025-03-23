@@ -4,7 +4,7 @@ An ssh server manages tui tools.
 
 ## Install
 
-### cargo
+### Use cargo
 
 ```bash
 cargo install lazyssh
@@ -13,14 +13,14 @@ cargo install lazyssh
 ## Usage
 
 Simply run the `lazyssh` command in the terminal（It is recommended to add a command alias for `lazyssh`, such as `s`）,
-and the TUI program will list all remote servers. Use `j`/`k` to
-navigate up and down, press `Enter` to automatically execute SSH login to the selected remote server, and press `q` to
-exit the TUI program. All server information comes from the `~/.ssh/config` file.
+and the TUI program will list all remote servers. You can select a server using your mouse or keyboard. All server
+information comes from the `~/.ssh/config` file.
 
 ## Shortcut
 
 | Key             | Desc                        |
 |-----------------|-----------------------------|
+| Mouse click     | Select server               |
 | j/↓             | Move down                   |
 | k/↑             | Move up                     |
 | g/Home          | Move to top                 |
@@ -32,7 +32,7 @@ exit the TUI program. All server information comes from the `~/.ssh/config` file
 | Enter           | Perform SSH login           |
 | q               | Exit                        |
 
-## ~/.ssh/config Example
+## ~/.ssh/config file Example
 
 ```
 Host product
@@ -73,10 +73,6 @@ Host dev_node3
     IdentityFile ~/.ssh/keys/dev_node3
 ```
 
-- You can use `ssh-keygen -t rsa -b 4096 -C youremail@xxx.com` to generate the private and public key.
-- You can use `ssh-copy-id -i xxx.pub -p 22 yourusername@x.x.x.x` to send the public key to the remote server.
-- Tips: You can log in to multiple remote servers using one pair of public and private keys.
-
 ```
 $ tree ~/.ssh
 /Users/jing/.ssh
@@ -96,3 +92,10 @@ $ tree ~/.ssh
 │   └── dev_node3.pub
 └── known_hosts
 ```
+
+## Tips
+
+- You can use `ssh-keygen -t rsa -b 4096 -C youremail@xxx.com` to generate the private and public key.
+- You can use `ssh-copy-id -i xxx.pub -p 22 yourusername@x.x.x.x` to send the public key to the remote server.
+- You can log in to multiple remote servers using one pair of public and private keys.
+- You can upload your `~/.ssh` folder to a git **private** repository.
