@@ -1,6 +1,7 @@
 use ratatui::widgets::ListState;
 use std::fs;
 use sublime_fuzzy::best_match;
+use unicode_width::UnicodeWidthStr;
 
 #[derive(Debug, Default)]
 pub struct ServerList {
@@ -171,7 +172,7 @@ impl ServerList {
     pub fn max_host_len(&self) -> usize {
         self.items
             .iter()
-            .map(|item| item.host.len())
+            .map(|item| item.host.width())
             .max()
             .unwrap_or(0)
     }
@@ -193,6 +194,8 @@ impl ServerItem {
     }
 
     pub fn to_string_aligned(&self, max_host_len: usize) -> String {
-        format!("{:width$} {}", self.host, self.ip, width = max_host_len)
+        let host_width = self.host.width();
+        let padding = " ".repeat(max_host_len - host_width);
+        format!("{}{} {}", self.host, padding, self.ip)
     }
 }

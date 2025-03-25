@@ -340,6 +340,7 @@ dependencies = [
  "dirs",
  "ratatui",
  "sublime_fuzzy",
+ "unicode-width 0.1.14",
 ]
 
 [[package]]
