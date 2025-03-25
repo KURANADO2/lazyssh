@@ -167,6 +167,14 @@ impl ServerList {
             None
         }
     }
+
+    pub fn max_host_len(&self) -> usize {
+        self.items
+            .iter()
+            .map(|item| item.host.len())
+            .max()
+            .unwrap_or(0)
+    }
 }
 
 impl ServerItem {
@@ -182,5 +190,9 @@ impl ServerItem {
 
     pub fn to_string(&self) -> String {
         format!("{} {}", self.host, self.ip)
+    }
+
+    pub fn to_string_aligned(&self, max_host_len: usize) -> String {
+        format!("{:width$} {}", self.host, self.ip, width = max_host_len)
     }
 }

@@ -16,11 +16,12 @@ pub fn render(frame: &mut Frame, app: &mut App) {
         .split(frame.area());
 
     // render server list
+    let max_host_len = app.server_list.max_host_len();
     let items: Vec<ListItem> = app
         .server_list
         .visible_items()
         .iter()
-        .map(|server| ListItem::new(Line::styled(server.to_string(), TEXT_FG_COLOR)))
+        .map(|server| ListItem::new(Line::styled(server.to_string_aligned(max_host_len), TEXT_FG_COLOR)))
         .collect();
     let list = List::new(items)
         .highlight_style(SELECTED_STYLE)
