@@ -79,7 +79,8 @@ impl SshConfigParser {
             "Host" => {
                 self.flush_current_host();
                 if parts[1] != "*" {
-                    self.current_host = Some(parts[1].to_string());
+                    let host_name = parts[1..].join(" ");
+                    self.current_host = Some(host_name);
                     self.current_is_group = Some(false);
                     self.reset_current_values();
                 }
