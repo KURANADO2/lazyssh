@@ -21,6 +21,7 @@ pub struct ServerItem {
     pub username: String,
     pub port: u32,
     pub private_key: String,
+    pub password: Option<String>,
 }
 
 #[derive(Default)]
@@ -32,6 +33,7 @@ struct SshConfigParser {
     current_user: Option<String>,
     current_port: u32,
     current_private_key: Option<String>,
+    current_password: Option<String>,
     items: Vec<ServerItem>,
 }
 
@@ -55,9 +57,16 @@ impl SshConfigParser {
                 username: String::new(),
                 port: 0,
                 private_key: String::new(),
+                password: None,
             });
             self.current_group = Some(group_name);
             self.current_is_group = Some(true);
+            return;
+        }
+
+        if line.starts_with("#: Password") {
+            let password = line[11..].trim().to_string();
+            self.current_password = Some(password);
             return;
         }
 
@@ -93,6 +102,7 @@ impl SshConfigParser {
                 self.current_user.as_deref().unwrap_or("jing"),
                 self.current_port,
                 self.current_private_key.as_deref().unwrap_or("unknown"),
+                self.current_password.take(),
             ));
         }
     }
@@ -102,6 +112,7 @@ impl SshConfigParser {
         self.current_user = None;
         self.current_port = 22;
         self.current_private_key = None;
+        self.current_password = None;
     }
 }
 
@@ -208,7 +219,7 @@ impl ServerList {
 }
 
 impl ServerItem {
-    pub fn new(group: &str, is_group: bool, host: &str, ip: &str, username: &str, port: u32, private_key: &str) -> Self {
+    pub fn new(group: &str, is_group: bool, host: &str, ip: &str, username: &str, port: u32, private_key: &str, password: Option<String>) -> Self {
         Self {
             group: group.to_string(),
             is_group,
@@ -217,6 +228,7 @@ impl ServerItem {
             username: username.to_string(),
             port,
             private_key: private_key.to_string(),
+            password,
         }
     }
 
