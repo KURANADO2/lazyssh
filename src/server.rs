@@ -35,6 +35,8 @@ struct SshConfigParser {
     items: Vec<ServerItem>,
 }
 
+const OTHER_GROUP: &str = "other";
+
 impl SshConfigParser {
     fn new() -> Self {
         Self::default()
@@ -84,7 +86,7 @@ impl SshConfigParser {
     fn flush_current_host(&mut self) {
         if let Some(host) = self.current_host.take() {
             self.items.push(ServerItem::new(
-                self.current_group.as_deref().unwrap_or("other"),
+                self.current_group.as_deref().unwrap_or(OTHER_GROUP),
                 self.current_is_group.unwrap_or(false),
                 &host,
                 self.current_ip.as_deref().unwrap_or("unknown"),
@@ -227,6 +229,8 @@ impl ServerItem {
         let padding = " ".repeat(max_host_len - host_width);
         if self.is_group {
             format!("{}", self.group)
+        } else if OTHER_GROUP.eq(&self.group) {
+            format!("{}{} {}", self.host, padding, self.ip)
         } else {
             format!("  {}{} {}", self.host, padding, self.ip)
         }
