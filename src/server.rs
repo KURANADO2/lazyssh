@@ -41,9 +41,9 @@ impl SshConfigParser {
     }
 
     fn parse_line(&mut self, line: &str) {
-
         let line = line.trim();
         if line.starts_with("#: Group") {
+            self.flush_current_host();
             let group_name = line[8..].trim().to_string();
             self.items.push(ServerItem {
                 group: group_name.clone(),
@@ -55,6 +55,7 @@ impl SshConfigParser {
                 private_key: String::new(),
             });
             self.current_group = Some(group_name);
+            self.current_is_group = Some(true);
             return;
         }
 
@@ -68,6 +69,7 @@ impl SshConfigParser {
                 self.flush_current_host();
                 if parts[1] != "*" {
                     self.current_host = Some(parts[1].to_string());
+                    self.current_is_group = Some(false);
                     self.reset_current_values();
                 }
             }
