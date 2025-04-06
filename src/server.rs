@@ -1,17 +1,21 @@
 use ratatui::widgets::ListState;
 use std::fs;
+use serde::Serialize;
 use sublime_fuzzy::best_match;
 use unicode_width::UnicodeWidthStr;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize)]
 pub struct ServerList {
     pub items: Vec<ServerItem>,
     pub filtered_items: Vec<usize>,
+    #[serde(skip_serializing)]
     pub state: ListState,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ServerItem {
+    pub group: String,
+    pub is_group: bool,
     pub host: String,
     pub ip: String,
     pub username: String,
@@ -21,6 +25,8 @@ pub struct ServerItem {
 
 #[derive(Default)]
 struct SshConfigParser {
+    current_group: Option<String>,
+    current_is_group: Option<bool>,
     current_host: Option<String>,
     current_ip: Option<String>,
     current_user: Option<String>,
@@ -35,6 +41,23 @@ impl SshConfigParser {
     }
 
     fn parse_line(&mut self, line: &str) {
+
+        let line = line.trim();
+        if line.starts_with("#: Group") {
+            let group_name = line[8..].trim().to_string();
+            self.items.push(ServerItem {
+                group: group_name.clone(),
+                is_group: true,
+                host: String::new(),
+                ip: String::new(),
+                username: String::new(),
+                port: 0,
+                private_key: String::new(),
+            });
+            self.current_group = Some(group_name);
+            return;
+        }
+
         let parts: Vec<&str> = line.split_whitespace().collect();
         if parts.len() < 2 {
             return;
@@ -59,6 +82,8 @@ impl SshConfigParser {
     fn flush_current_host(&mut self) {
         if let Some(host) = self.current_host.take() {
             self.items.push(ServerItem::new(
+                self.current_group.as_deref().unwrap_or("other"),
+                self.current_is_group.unwrap_or(false),
                 &host,
                 self.current_ip.as_deref().unwrap_or("unknown"),
                 self.current_user.as_deref().unwrap_or("jing"),
@@ -179,8 +204,10 @@ impl ServerList {
 }
 
 impl ServerItem {
-    pub fn new(host: &str, ip: &str, username: &str, port: u32, private_key: &str) -> Self {
+    pub fn new(group: &str, is_group: bool, host: &str, ip: &str, username: &str, port: u32, private_key: &str) -> Self {
         Self {
+            group: group.to_string(),
+            is_group,
             host: host.to_string(),
             ip: ip.to_string(),
             username: username.to_string(),
@@ -196,6 +223,21 @@ impl ServerItem {
     pub fn to_string_aligned(&self, max_host_len: usize) -> String {
         let host_width = self.host.width();
         let padding = " ".repeat(max_host_len - host_width);
-        format!("{}{} {}", self.host, padding, self.ip)
+        if self.is_group {
+            format!("{}", self.group)
+        } else {
+            format!("  {}{} {}", self.host, padding, self.ip)
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::server::ServerList;
+
+    #[test]
+    fn test() {
+        let list = ServerList::from_ssh_config();
+        println!("{}", serde_json::to_string(&list).unwrap());
     }
 }
