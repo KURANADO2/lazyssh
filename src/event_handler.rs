@@ -38,8 +38,13 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
             // execute ssh login
             KeyCode::Enter => {
                 app.is_searching = false;
-                app.should_exit = true;
-                app.has_selected = true;
+                // Only exit and set has_selected if the selected item is not a group
+                if let Some(server) = app.server_list.selected() {
+                    if !server.is_group {
+                        app.should_exit = true;
+                        app.has_selected = true;
+                    }
+                }
             }
             _ => {}
         }
@@ -57,8 +62,13 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
             app.search_query.clear();
         }
         KeyCode::Enter => {
-            app.should_exit = true;
-            app.has_selected = true;
+            // Only exit and set has_selected if the selected item is not a group
+            if let Some(server) = app.server_list.selected() {
+                if !server.is_group {
+                    app.should_exit = true;
+                    app.has_selected = true;
+                }
+            }
         }
         _ => {}
     }
@@ -74,9 +84,13 @@ pub fn handle_mouse(app: &mut App, mouse: MouseEvent) {
                 // Check for double click
                 if let Some(last_click) = app.last_click_time {
                     if last_click.elapsed() < Duration::from_millis(300) {
-                        // Double click detected, perform login
-                        app.should_exit = true;
-                        app.has_selected = true;
+                        // Double click detected, perform login only if not a group
+                        if let Some(server) = app.server_list.selected() {
+                            if !server.is_group {
+                                app.should_exit = true;
+                                app.has_selected = true;
+                            }
+                        }
                     }
                 }
                 app.last_click_time = Some(std::time::Instant::now());
