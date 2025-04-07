@@ -4,10 +4,16 @@ An ssh server manages tui tools.
 
 ## Install
 
-### Use cargo
+### Use [Cargo](https://www.rust-lang.org/tools/install)
 
 ```bash
 cargo install lazyssh
+```
+
+### Use Homebrew
+
+```bash
+brew install KURANADO2/lazyssh/lazyssh
 ```
 
 ## Usage
