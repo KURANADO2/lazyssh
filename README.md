@@ -32,7 +32,7 @@ press Enter to log in to the server. All server information comes from the `~/.s
 | Double click/Enter | Perform SSH login           |
 | q                  | Exit                        |
 
-## ~/.ssh/config file Example
+## `~/.ssh/config` file Example
 
 ### Using public and private keys(Recommended)
 
@@ -75,7 +75,7 @@ Host Media server
     Port 22
     #: Password 123456
 Host Storage server
-    HostName 49.235.30.205
+    HostName 49.235.30.206
     User root
     Port 22
     PreferredAuthentications publickey
@@ -114,25 +114,27 @@ Host product_node2
     IdentityFile ~/.ssh/keys/product_node2
 ```
 
+The `~/.ssh` file directory structure is as follows: 
+
 ```
 $ tree ~/.ssh
 /Users/jing/.ssh
 ├── config
 ├── keys
-│   ├── product_node1
-│   ├── product_node1.pub
-│   ├── product_node2
-│   ├── product_node2.pub
 │   ├── ubuntu
 │   ├── ubuntu.pub
+│   ├── storage_server
+│   ├── storage_server.pub
 │   ├── k8s_master
 │   ├── k8s_master.pub
 │   ├── dev_node1
 │   ├── dev_node1.pub
 │   ├── dev_node2
 │   ├── dev_node2.pub
-│   ├── storage_server
-│   └── storage_server.pub
+│   ├── product_node1
+│   ├── product_node1.pub
+│   ├── product_node2
+│   └── product_node2.pub
 └── known_hosts
 ```
 
