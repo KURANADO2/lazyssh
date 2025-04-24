@@ -27,6 +27,7 @@ press Enter to log in to the server. All server information comes from the `~/.s
 | Key                | Desc                        |
 |--------------------|-----------------------------|
 | Mouse click        | Select server               |
+| Mouse scrolling    | Move down or up             |
 | j/↓                | Move down                   |
 | k/↑                | Move up                     |
 | g/Home             | Move to top                 |
@@ -120,7 +121,7 @@ Host product_node2
     IdentityFile ~/.ssh/keys/product_node2
 ```
 
-The `~/.ssh` file directory structure is as follows: 
+The `~/.ssh` file directory structure is as follows:
 
 ```
 $ tree ~/.ssh
