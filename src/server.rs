@@ -234,7 +234,7 @@ impl ServerItem {
     }
 
     pub fn to_string(&self) -> String {
-        format!("{} {}", self.host, self.ip)
+        format!("{}", self.host)
     }
 
     pub fn to_string_aligned(&self, max_host_len: usize) -> String {
