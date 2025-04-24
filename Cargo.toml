@@ -1,6 +1,6 @@
 [package]
 name = "lazyssh"
-version = "0.9.1"
+version = "0.10.0"
 edition = "2021"
 keywords = ["tui", "ssh"]
 description = "An ssh server manages tui tools."
