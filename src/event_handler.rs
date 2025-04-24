@@ -96,6 +96,12 @@ pub fn handle_mouse(app: &mut App, mouse: MouseEvent) {
                 app.last_click_time = Some(std::time::Instant::now());
             }
         }
+        MouseEventKind::ScrollUp => {
+            app.server_list.select_previous();
+        }
+        MouseEventKind::ScrollDown => {
+            app.server_list.select_next();
+        }
         _ => {}
     }
 }
