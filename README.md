@@ -37,6 +37,7 @@ press Enter to log in to the server. All server information comes from the `~/.s
 | Backspace          | Delete search query chars   |
 | Esc                | Exit search mode            |
 | Double click/Enter | Perform SSH login           |
+| z                  | Toggle all groups           |
 | q                  | Exit                        |
 
 ## `~/.ssh/config` file Example
