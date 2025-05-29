@@ -1,6 +1,7 @@
 use ratatui::widgets::ListState;
-use std::fs;
 use serde::Serialize;
+use std::collections::HashMap;
+use std::fs;
 use sublime_fuzzy::best_match;
 use unicode_width::UnicodeWidthStr;
 
@@ -10,6 +11,8 @@ pub struct ServerList {
     pub filtered_items: Vec<usize>,
     #[serde(skip_serializing)]
     pub state: ListState,
+    #[serde(skip_serializing)]
+    pub expanded_groups: HashMap<String, bool>,
 }
 
 #[derive(Debug, Serialize)]
@@ -135,10 +138,19 @@ impl ServerList {
         let mut state = ListState::default();
         state.select(Some(0));
 
+        let mut expanded_groups = HashMap::new();
+        // Initialize all groups as expanded by default
+        for item in &parser.items {
+            if item.is_group {
+                expanded_groups.insert(item.group.clone(), true);
+            }
+        }
+
         let mut result = Self {
             items: parser.items,
             state,
             filtered_items: Vec::new(),
+            expanded_groups,
         };
 
         result.reset_filter();
@@ -172,11 +184,42 @@ impl ServerList {
         self.state.select(Some(0));
     }
 
+    pub fn toggle_group(&mut self) {
+        if let Some(selected) = self.selected() {
+            if selected.is_group {
+                let group_name = selected.group.clone();
+                let current_index = self.state.selected().unwrap_or(0);
+                if let Some(is_expanded) = self.expanded_groups.get_mut(&group_name) {
+                    *is_expanded = !*is_expanded;
+                    // Rebuild filtered items without resetting selection
+                    self.filtered_items = (0..self.items.len()).collect();
+                    // Restore the selection
+                    self.state.select(Some(current_index));
+                }
+            }
+        }
+    }
+
+    pub fn is_group_expanded(&self, group: &str) -> bool {
+        self.expanded_groups.get(group).copied().unwrap_or(true)
+    }
+
     pub fn visible_items(&self) -> Vec<&ServerItem> {
-        self.filtered_items
-            .iter()
-            .map(|&idx| &self.items[idx])
-            .collect()
+        let mut visible = Vec::new();
+        let mut current_group = None;
+        let mut current_group_expanded = true;
+
+        for &idx in &self.filtered_items {
+            let item = &self.items[idx];
+            if item.is_group {
+                current_group = Some(&item.group);
+                current_group_expanded = self.is_group_expanded(&item.group);
+                visible.push(item);
+            } else if current_group_expanded {
+                visible.push(item);
+            }
+        }
+        visible
     }
 
     pub fn select_next(&mut self) {
@@ -195,19 +238,35 @@ impl ServerList {
         self.state.select_last();
     }
 
-    pub fn selected(&self) -> Option<&ServerItem> {
-        self.state
-            .selected()
-            .and_then(|i| self.filtered_items.get(i))
-            .map(|&idx| &self.items[idx])
-    }
-
     pub fn get_index_at_y(&self, y: usize) -> Option<usize> {
-        if y < self.filtered_items.len() {
-            Some(y)
+        let visible_items = self.visible_items();
+        if y < visible_items.len() {
+            // Find the corresponding index in the original items list
+            let visible_item = &visible_items[y];
+            self.items.iter().position(|item| {
+                item.group == visible_item.group
+                    && item.host == visible_item.host
+                    && item.is_group == visible_item.is_group
+            })
         } else {
             None
         }
+    }
+
+    pub fn selected(&self) -> Option<&ServerItem> {
+        let visible_items = self.visible_items();
+        self.state
+            .selected()
+            .and_then(|i| visible_items.get(i))
+            .map(|item| {
+                // Find the corresponding item in the original list
+                self.items
+                    .iter()
+                    .find(|i| {
+                        i.group == item.group && i.host == item.host && i.is_group == item.is_group
+                    })
+                    .unwrap()
+            })
     }
 
     pub fn max_host_len(&self) -> usize {
@@ -217,10 +276,34 @@ impl ServerList {
             .max()
             .unwrap_or(0)
     }
+
+    pub fn toggle_all_groups(&mut self) {
+        let current_index = self.state.selected().unwrap_or(0);
+        let all_expanded = self.expanded_groups.values().all(|&expanded| expanded);
+
+        // Toggle all groups to the opposite state
+        for is_expanded in self.expanded_groups.values_mut() {
+            *is_expanded = !all_expanded;
+        }
+
+        // Rebuild filtered items without resetting selection
+        self.filtered_items = (0..self.items.len()).collect();
+        // Restore the selection
+        self.state.select(Some(current_index));
+    }
 }
 
 impl ServerItem {
-    pub fn new(group: &str, is_group: bool, host: &str, ip: &str, username: &str, port: u32, private_key: &str, password: Option<String>) -> Self {
+    pub fn new(
+        group: &str,
+        is_group: bool,
+        host: &str,
+        ip: &str,
+        username: &str,
+        port: u32,
+        private_key: &str,
+        password: Option<String>,
+    ) -> Self {
         Self {
             group: group.to_string(),
             is_group,
@@ -237,11 +320,12 @@ impl ServerItem {
         format!("{}", self.host)
     }
 
-    pub fn to_string_aligned(&self, max_host_len: usize) -> String {
+    pub fn to_string_aligned(&self, max_host_len: usize, is_expanded: bool) -> String {
         let host_width = self.host.width();
         let padding = " ".repeat(max_host_len - host_width);
         if self.is_group {
-            format!("{}", self.group)
+            let arrow = if is_expanded { "▼" } else { "▶" };
+            format!("{} {}", arrow, self.group)
         } else if OTHER_GROUP.eq(&self.group) {
             format!("{}{} {}", self.host, padding, self.ip)
         } else {

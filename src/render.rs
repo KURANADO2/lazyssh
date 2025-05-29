@@ -21,7 +21,17 @@ pub fn render(frame: &mut Frame, app: &mut App) {
         .server_list
         .visible_items()
         .iter()
-        .map(|server| ListItem::new(Line::styled(server.to_string_aligned(max_host_len), TEXT_FG_COLOR)))
+        .map(|server| {
+            let is_expanded = if server.is_group {
+                app.server_list.is_group_expanded(&server.group)
+            } else {
+                true
+            };
+            ListItem::new(Line::styled(
+                server.to_string_aligned(max_host_len, is_expanded),
+                TEXT_FG_COLOR,
+            ))
+        })
         .collect();
     let list = List::new(items)
         .highlight_style(SELECTED_STYLE)
@@ -36,7 +46,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
             app.search_query
         )
     } else {
-        "j/↓: down | k/↑: up | g/Home: top | G/End: bottom | / or f: search | Enter: login"
+        "j/↓: down | k/↑: up | g/Home: top | G/End: bottom | / or f: search | z: toggle all groups | Enter: login"
             .to_string()
     };
     let footer = Paragraph::new(footer_text);

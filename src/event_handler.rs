@@ -35,12 +35,13 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
             // navigation in search results
             KeyCode::Down => app.server_list.select_next(),
             KeyCode::Up => app.server_list.select_previous(),
-            // execute ssh login
+            // execute ssh login or toggle group
             KeyCode::Enter => {
                 app.is_searching = false;
-                // Only exit and set has_selected if the selected item is not a group
                 if let Some(server) = app.server_list.selected() {
-                    if !server.is_group {
+                    if server.is_group {
+                        app.server_list.toggle_group();
+                    } else {
                         app.should_exit = true;
                         app.has_selected = true;
                     }
@@ -61,10 +62,12 @@ pub fn handle_key(app: &mut App, key: KeyEvent) {
             app.is_searching = true;
             app.search_query.clear();
         }
+        KeyCode::Char('z') => app.server_list.toggle_all_groups(),
         KeyCode::Enter => {
-            // Only exit and set has_selected if the selected item is not a group
             if let Some(server) = app.server_list.selected() {
-                if !server.is_group {
+                if server.is_group {
+                    app.server_list.toggle_group();
+                } else {
                     app.should_exit = true;
                     app.has_selected = true;
                 }
@@ -84,9 +87,11 @@ pub fn handle_mouse(app: &mut App, mouse: MouseEvent) {
                 // Check for double click
                 if let Some(last_click) = app.last_click_time {
                     if last_click.elapsed() < Duration::from_millis(300) {
-                        // Double click detected, perform login only if not a group
+                        // Double click detected, toggle group or perform login
                         if let Some(server) = app.server_list.selected() {
-                            if !server.is_group {
+                            if server.is_group {
+                                app.server_list.toggle_group();
+                            } else {
                                 app.should_exit = true;
                                 app.has_selected = true;
                             }
